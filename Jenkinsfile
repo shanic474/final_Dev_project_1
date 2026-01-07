@@ -28,7 +28,8 @@ pipeline {
                     apps.each { app ->
                         branches[app.name] = {
                             stage("Clone ${app.name}") {
-                                sh "git clone ${app.git_url} ${app.name}"
+                                sh "git clone --branch ${app.branch} --single-branch ${app.git_url} ${app.name}"
+
                             }
 
                             stage("Build Docker ${app.name}") {
