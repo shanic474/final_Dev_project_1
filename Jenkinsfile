@@ -41,10 +41,10 @@ pipeline {
                             }
 
                             sh "sed -i 's|image: .*|image: ${app.docker_image}:${BUILD_NUMBER}|g' ${app.k3s_deployment}"
-                            sh "kubectl apply -f ${app.k8s_deployment}"
-                            sh "kubectl rollout restart deployment ${app.k8s_deployment.replace('.yaml','')}"
+                            sh "kubectl apply -f ${app.k3s_deployment}"
+                            sh "kubectl rollout restart deployment ${app.k3s_deployment.replace('.yaml','')}"
 
-                            sh "kubectl apply -f ${app.k8s_service}"
+                            sh "kubectl apply -f ${app.k3s_service}"
                         }
                     }
 
