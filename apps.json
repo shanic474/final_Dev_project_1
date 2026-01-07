@@ -3,21 +3,21 @@
     "name": "server",
     "git_url": "https://github.com/shanic474/Server-FullStack-final-Project.git",
     "docker_image": "s10shani/server-app",
-    "k8s_deployment": "server-deployment.yaml",
-    "k8s_service": "server-service.yaml"
+    "k3s_deployment": "server-deployment.yaml",
+    "k3s_service": "server-service.yaml"
   },
   {
     "name": "dashboard",
     "git_url": "https://github.com/shanic474/Dashboard-FullStack-final-Project.git",
     "docker_image": "s10shani/dashboard-app",
-    "k8s_deployment": "dashboard-deployment.yaml",
-    "k8s_service": "dashboard-service.yaml"
+    "k3s_deployment": "dashboard-deployment.yaml",
+    "k3s_service": "dashboard-service.yaml"
   }
   {
     "name": "client",
     "git_url": "https://github.com/shanic474/Client-FullStack-final-Project.git",
     "docker_image": "s10shani/client-app",
-    "k8s_deployment": "client-deployment.yaml",
-    "k8s_service": "client-service.yaml"
+    "k3s_deployment": "client-deployment.yaml",
+    "k3s_service": "client-service.yaml"
   }
 ]
