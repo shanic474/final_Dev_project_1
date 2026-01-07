@@ -52,18 +52,16 @@ pipeline {
                         }
                        stage ('deploy image to Kubernetes'){
                             steps{
-                                sh "sed -i 's|image:${IMAGE_NAME}:${BUILD_NUMBER}|g' proj1-deployment.yaml"
-                                sh "kubectl apply -f proj1-deployment.yaml"
-                                sh "kubectl rollout restart deployment proj1-deployment"
-                                sh "sed -i 's|image: .*|image: ${app.docker_image}:${BUILD_NUMBER}|g' ${app.k8s_deployment}"
-                                sh "kubectl apply -f ${app.k8s_deployment}"
-                                sh "kubectl rollout restart deployment ${app.k8s_deployment.replace('.yaml','')}"
+                                sh "sed -i 's|image: .*|image: ${app.docker_image}:${BUILD_NUMBER}|g' ${app.k3s_deployment}"
+                                sh "kubectl apply -f ${app.k3s_deployment}"
+                                sh "kubectl rollout restart deployment ${app.k3s_deployment.replace('.yaml','')}"
                 
                             }
                         }
                          stage ('expose the deployment via service'){
                             steps{
-                                 sh "kubectl apply -f proj1-service.yaml"
+                               sh "kubectl apply -f ${app.k3s_service}"
+
                             }
                         }
     }
