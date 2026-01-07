@@ -1,13 +1,14 @@
+# Service template
 apiVersion: v1
 kind: Service
 metadata:
-  name: proj1-service
+  name: ${APP_NAME}-service
 spec:
   type: NodePort
   selector:
-    app: myapp
+    app: ${APP_NAME}
   ports:
     - protocol: TCP
-      port: 80          # Service port
-      targetPort: 80    # matches containerPort in pod
-      nodePort: 31001   # port on your node
+      port: 80
+      targetPort: 80
+      nodePort: ${NODE_PORT}   # choose unique port per app
