@@ -16,72 +16,35 @@ pipeline {
             }
         }
 
-        stage('Git Checkout') {
+        stage('Build, Push, Deploy Apps in Parallel') {
             steps {
                 script {
-                    apps.each { app ->
-                        echo "Cloning ${app.name}"
-                        sh "git clone ${app.git_url} ${app.name}"
-                    }
-                }
-            }
-        }
+                    def branches = [:]
 
-        stage('Build Docker Images') {
-            steps {
-                script {
                     apps.each { app ->
-                        echo "Building Docker image for ${app.name}"
-                        sh "docker build --no-cache --build-arg APP_NAME=${app.name} -t ${app.docker_image}:latest ./"
-                    }
-                }
-            }
-        }
+                        branches[app.name] = {
+                            echo "Processing app: ${app.name}"
 
-        stage('Docker Tag') {
-            steps {
-                script {
-                    apps.each { app ->
-                        echo "Tagging ${app.name}"
-                        sh "docker tag ${app.docker_image}:latest ${app.docker_image}:${BUILD_NUMBER}"
-                    }
-                }
-            }
-        }
+                            sh "git clone ${app.git_url} ${app.name}"
 
-        stage('Docker Push') {
-            steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]){
-                        apps.each { app ->
-                            echo "Pushing ${app.name}"
-                            sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin && docker push ${app.docker_image}:${BUILD_NUMBER}"
+                            sh "docker build --no-cache --build-arg APP_NAME=${app.name} -t ${app.docker_image}:latest ./"
+
+                            sh "docker tag ${app.docker_image}:latest ${app.docker_image}:${BUILD_NUMBER}"
+
+                            withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]){
+                                sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin && docker push ${app.docker_image}:${BUILD_NUMBER}"
+                            }
+
+                            sh "sed -i 's|image: .*|image: ${app.docker_image}:${BUILD_NUMBER}|g' ${app.k3s_deployment}"
+                            sh "kubectl apply -f ${app.k3s_deployment}"
+                            sh "kubectl rollout restart deployment ${app.k3s_deployment.replace('.yaml','')}"
+
+                            sh "kubectl apply -f ${app.k3s_service}"
                         }
                     }
-                }
-            }
-        }
 
-        stage('Deploy to Kubernetes') {
-            steps {
-                script {
-                    apps.each { app ->
-                        echo "Deploying ${app.name}"
-                        sh "sed -i 's|image: .*|image: ${app.docker_image}:${BUILD_NUMBER}|g' ${app.k3s_deployment}"
-                        sh "kubectl apply -f ${app.k3s_deployment}"
-                        sh "kubectl rollout restart deployment ${app.k3s_deployment.replace('.yaml','')}"
-                    }
-                }
-            }
-        }
-
-        stage('Expose Services') {
-            steps {
-                script {
-                    apps.each { app ->
-                        echo "Applying service for ${app.name}"
-                        sh "kubectl apply -f ${app.k3s_service}"
-                    }
+                    // Run all apps in parallel
+                    parallel branches
                 }
             }
         }
