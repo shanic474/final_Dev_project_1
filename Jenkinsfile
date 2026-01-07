@@ -35,7 +35,7 @@ pipeline {
                                 sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin && docker push ${app.docker_image}:${BUILD_NUMBER}"
                             }
 
-                            sh "sed -i 's|image: .*|image: ${app.docker_image}:${BUILD_NUMBER}|g' ${app.k3s_deployment}"
+                            sed -i 's|image: .*|image: ${app.docker_image}:${BUILD_NUMBER}|g' ${app.k3s_deployment}
                             sh "kubectl apply -f ${app.k3s_deployment}"
                             sh "kubectl rollout restart deployment ${app.k3s_deployment.replace('.yaml','')}"
 
