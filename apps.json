@@ -6,6 +6,7 @@
     "k3s_deployment": "proj1-deployment.yaml",
     "k3s_service": "proj1-service.yaml",
     "node_port": 31001,
+     "branch": "dev",
     "app_type": "backend"
   },
   {
@@ -15,6 +16,7 @@
     "k3s_deployment": "proj1-deployment.yaml",
     "k3s_service": "proj1-service.yaml",
     "node_port": 31002,
+     "branch": "dev",
     "app_type": "frontend"
   },
   {
@@ -24,6 +26,7 @@
     "k3s_deployment": "proj1-deployment.yaml",
     "k3s_service": "proj1-service.yaml",
     "node_port": 31003,
+     "branch": "dev",
     "app_type": "frontend"
   }
 ]
