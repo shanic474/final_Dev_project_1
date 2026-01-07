@@ -5,14 +5,19 @@ pipeline {
         KUBECONFIG = "/etc/rancher/k3s/k3s.yaml"
     }
 
-    stage('Clean Old Apps') {
-        steps {
-            sh 'rm -rf server dashboard client'  // remove old cloned app repos
-        }    
+    stages {
+
+        stage('Clean Old Apps') {
+            steps {
+                sh 'rm -rf server dashboard client'  // remove old cloned app repos
+            }
+        }
 
         stage('Load Apps Config') {
             steps {
-                script { apps = readJSON file: 'apps.json' }
+                script { 
+                    apps = readJSON file: 'apps.json' 
+                }
             }
         }
 
@@ -36,10 +41,10 @@ pipeline {
                             }
 
                             sh "sed -i 's|image: .*|image: ${app.docker_image}:${BUILD_NUMBER}|g' ${app.k3s_deployment}"
-                            sh "kubectl apply -f ${app.k3s_deployment}"
-                            sh "kubectl rollout restart deployment ${app.k3s_deployment.replace('.yaml','')}"
+                            sh "kubectl apply -f ${app.k8s_deployment}"
+                            sh "kubectl rollout restart deployment ${app.k8s_deployment.replace('.yaml','')}"
 
-                            sh "kubectl apply -f ${app.k3s_service}"
+                            sh "kubectl apply -f ${app.k8s_service}"
                         }
                     }
 
@@ -48,5 +53,6 @@ pipeline {
                 }
             }
         }
-    }
+
+    } // end stages
 }
