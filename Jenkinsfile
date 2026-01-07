@@ -5,10 +5,10 @@ pipeline {
         KUBECONFIG = "/etc/rancher/k3s/k3s.yaml"
     }
 
-    stages {
-        stage('Clean Workspace') {
-            steps { deleteDir() }
-        }
+    stage('Clean Old Apps') {
+        steps {
+            sh 'rm -rf server dashboard client'  // remove old cloned app repos
+        }    
 
         stage('Load Apps Config') {
             steps {
