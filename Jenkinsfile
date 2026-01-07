@@ -6,49 +6,10 @@ pipeline {
     }
 
     stages {
-
         stage('Clean Old Apps') {
             steps {
                 sh 'rm -rf server dashboard client'  // remove old cloned app repos
-            }stage('Build, Push, Deploy Apps in Parallel') {
-    steps {
-        script {
-            def branches = [:]
-
-            apps.each { app ->
-                branches[app.name] = {
-                    stage("Clone ${app.name}") {
-                        sh "git clone ${app.git_url} ${app.name}"
-                    }
-
-                    stage("Build Docker ${app.name}") {
-                        sh "docker build --no-cache --build-arg APP_NAME=${app.name} -t ${app.docker_image}:latest ./"
-                    }
-
-                    stage("Tag Docker ${app.name}") {
-                        sh "docker tag ${app.docker_image}:latest ${app.docker_image}:${BUILD_NUMBER}"
-                    }
-
-                    stage("Push Docker ${app.name}") {
-                        withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]){
-                            sh "echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin && docker push ${app.docker_image}:${BUILD_NUMBER}"
-                        }
-                    }
-
-                    stage("Deploy ${app.name}") {
-                        sh "sed -i 's|image: .*|image: ${app.docker_image}:${BUILD_NUMBER}|g' ${app.k3s_deployment}"
-                        sh "kubectl apply -f ${app.k3s_deployment}"
-                        sh "kubectl rollout restart deployment ${app.k3s_deployment.replace('.yaml','')}"
-                        sh "kubectl apply -f ${app.k3s_service}"
-                    }
-                }
             }
-
-            parallel branches
-        }
-    }
-}
-
         }
 
         stage('Load Apps Config') {
@@ -63,27 +24,27 @@ pipeline {
             steps {
                 script {
                     def branches = [:]
-        
+
                     apps.each { app ->
                         branches[app.name] = {
                             stage("Clone ${app.name}") {
                                 sh "git clone ${app.git_url} ${app.name}"
                             }
-        
+
                             stage("Build Docker ${app.name}") {
                                 sh "docker build --no-cache --build-arg APP_NAME=${app.name} -t ${app.docker_image}:latest ./"
                             }
-        
+
                             stage("Tag Docker ${app.name}") {
                                 sh "docker tag ${app.docker_image}:latest ${app.docker_image}:${BUILD_NUMBER}"
                             }
-        
+
                             stage("Push Docker ${app.name}") {
                                 withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]){
                                     sh "echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin && docker push ${app.docker_image}:${BUILD_NUMBER}"
                                 }
                             }
-        
+
                             stage("Deploy ${app.name}") {
                                 sh "sed -i 's|image: .*|image: ${app.docker_image}:${BUILD_NUMBER}|g' ${app.k3s_deployment}"
                                 sh "kubectl apply -f ${app.k3s_deployment}"
@@ -92,13 +53,10 @@ pipeline {
                             }
                         }
                     }
-        
+
                     parallel branches
                 }
             }
-}
-
         }
-
     } // end stages
 }
