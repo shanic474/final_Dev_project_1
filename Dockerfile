@@ -1,18 +1,19 @@
-FROM node:18-alpine AS build
-
-ARG APP_NAME
+FROM node:20-alpine
 
 WORKDIR /app
 
-COPY $APP_NAME/package*.json ./
+COPY package*.json ./
 
 RUN npm install
 
-COPY $APP_NAME/ ./
+COPY . ./
 
-RUN npm run build   # optional, for React/Angular
+RUN npm run build
 
 FROM nginx:alpine
-COPY --from=build /app/build /usr/share/nginx/html
+
+COPY --from=0 /app/dist /usr/share/nginx/html
+
 EXPOSE 80
+
 CMD ["nginx", "-g", "daemon off;"]
