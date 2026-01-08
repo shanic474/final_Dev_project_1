@@ -1,7 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: proj1-deployment
 spec:
-  containers:
-    - name: proj1-container
-      image: s10shani/proj1:latest
-      imagePullPolicy: Always
-      ports:
-        - containerPort: 80
+  replicas: 1
+  selector:
+    matchLabels:
+      app: proj1
+  template:
+    metadata:
+      labels:
+        app: proj1
+    spec:
+      containers:
+        - name: proj1-container
+          image: s10shani/proj1:latest   # ← רק שורה אחת
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
