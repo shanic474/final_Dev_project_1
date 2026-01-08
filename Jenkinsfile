@@ -17,12 +17,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh """
-                docker build \
-                  --no-cache \
-                  --build-arg BUILD_NUMBER=${BUILD_NUMBER} \
-                  -t ${IMAGE_NAME}:${BUILD_NUMBER} .
-                """
+                sh "docker build --no-cache -t ${IMAGE_NAME}:${BUILD_NUMBER} ."
             }
         }
 
