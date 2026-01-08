@@ -1,7 +1,6 @@
 FROM nginx:alpine
 
 ARG BUILD_NUMBER
-ENV BUILD_NUMBER=$BUILD_NUMBER
 
 RUN rm -rf /usr/share/nginx/html/*
 
