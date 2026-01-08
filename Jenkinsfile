@@ -21,7 +21,7 @@ pipeline {
                 docker build \
                   --no-cache \
                   --build-arg BUILD_NUMBER=${BUILD_NUMBER} \
-                  -t ${IMAGE_NAME}:latest .
+                  -t ${IMAGE_NAME}:${BUILD_NUMBER} .
                 """
             }
         }
